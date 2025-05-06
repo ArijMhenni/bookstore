@@ -42,6 +42,13 @@ public class Book {
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems = new ArrayList<>();
 
+    public String getImageUrl() {
+        if (image == null || image.isEmpty()) {
+            return "/images/default-book.jpg";
+        }
+        return "/images/" + image;
+    }
+
     public Long getId() {
         return id;
     }

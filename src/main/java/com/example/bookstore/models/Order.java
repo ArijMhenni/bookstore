@@ -28,8 +28,9 @@ public class Order {
     @Column(nullable = false)
     private double totalAmount;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String status; // "PENDING", "COMPLETED", "CANCELLED"
+    private OrderStatus status;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items = new ArrayList<>();

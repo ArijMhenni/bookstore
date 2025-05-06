@@ -1,74 +1,64 @@
 package com.example.bookstore.config;
 
+import com.example.bookstore.service.UserDetailsServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
+@Slf4j
 public class SecurityConfig {
+
+    private final UserDetailsServiceImpl userDetailsService;
+
+    public SecurityConfig(UserDetailsServiceImpl userDetailsService) {
+        this.userDetailsService = userDetailsService;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        log.info("Configuring security filter chain");
+        
         http
-                // Disable CSRF for H2 console only
-                .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/h2-console/**")
-                )
-                .headers(headers -> headers
-                        .frameOptions(frame -> frame.sameOrigin())
-                )
-
-                // Authorization rules
-                .authorizeHttpRequests(auth -> auth
-                        // Public resources
-                        .requestMatchers(
-                                "/",
-                                "/home",
-                                "/auth/login",
-                                "/auth/logout",
-                                "/static/**",
-                                "/css/**",
-                                "/images/**",
-                                "/webjars/**",
-                                "/h2-console/**"
-                        ).permitAll()
-
-                        // Authenticated endpoints
-                        .requestMatchers("/books/**").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers("/cart/**").hasRole("USER")
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .anyRequest().authenticated()
-                )
-
-                // Login configuration
-                .formLogin(form -> form
-                        .loginPage("/auth/login")
-                        .loginProcessingUrl("/auth/login")
-                        .defaultSuccessUrl("/books/list")
-                        .failureUrl("/auth/login?error")
-                        .permitAll()
-                )
-
-                // Logout configuration
-                .logout(logout -> logout
-                        .logoutUrl("/auth/logout")
-                        .logoutSuccessUrl("/auth/login?logout")
-                        .deleteCookies("JSESSIONID")
-                        .invalidateHttpSession(true)
-                );
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/", "/css/**", "/js/**", "/images/**", "/auth/login").permitAll()
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .anyRequest().authenticated()
+            )
+            .formLogin(form -> form
+                .loginPage("/auth/login")
+                .defaultSuccessUrl("/", true)
+                .permitAll()
+            )
+            .logout(logout -> logout
+                .logoutSuccessUrl("/auth/login?logout")
+                .permitAll()
+            );
 
         return http.build();
     }
 
     @Bean
+    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+        AuthenticationManagerBuilder authenticationManagerBuilder = 
+            http.getSharedObject(AuthenticationManagerBuilder.class);
+        authenticationManagerBuilder
+            .userDetailsService(userDetailsService)
+            .passwordEncoder(passwordEncoder());
+        return authenticationManagerBuilder.build();
+    }
+
+    @Bean
     public PasswordEncoder passwordEncoder() {
+        log.info("Creating BCrypt password encoder");
         return new BCryptPasswordEncoder();
     }
 }

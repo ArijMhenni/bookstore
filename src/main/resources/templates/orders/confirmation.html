@@ -1,10 +1,63 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Order Confirmation</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
+    <div class="container mt-4">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h2>Order Confirmation</h2>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-success">
+                    <h4>Thank you for your order!</h4>
+                    <p>Your order has been successfully placed. Order number: <strong th:text="${order.id}"></strong></p>
+                </div>
 
+                <h4>Order Details</h4>
+                <table class="table">
+                    <tr>
+                        <th>Order Date:</th>
+                        <td th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy HH:mm')}"></td>
+                    </tr>
+                    <tr>
+                        <th>Total Amount:</th>
+                        <td th:text="${#numbers.formatDecimal(order.totalAmount, 1, 2)} + ' €'"></td>
+                    </tr>
+                    <tr>
+                        <th>Status:</th>
+                        <td th:text="${order.status}"></td>
+                    </tr>
+                </table>
+
+                <h4>Order Items</h4>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Book</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="item : ${order.orderItems}">
+                            <td th:text="${item.book.title}"></td>
+                            <td th:text="${item.quantity}"></td>
+                            <td th:text="${#numbers.formatDecimal(item.book.price, 1, 2)} + ' €'"></td>
+                            <td th:text="${#numbers.formatDecimal(item.book.price * item.quantity, 1, 2)} + ' €'"></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="text-center mt-4">
+                    <a href="/books" class="btn btn-primary">Continue Shopping</a>
+                    <a href="/orders/history" class="btn btn-info">View Order History</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
