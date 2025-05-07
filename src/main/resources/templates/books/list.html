@@ -20,16 +20,16 @@
         <!-- Search Bar -->
         <div class="row mb-4">
             <div class="col-md-6">
-                <form th:action="@{/books/search}" method="get" class="d-flex">
-                    <input type="text" name="query" class="form-control me-2" placeholder="Search books...">
-                    <button type="submit" class="btn btn-primary">Search</button>
-                </form>
+                <div class="d-flex">
+                    <input type="text" id="searchInput" class="form-control me-2" placeholder="Search books...">
+                    <button type="button" class="btn btn-primary" onclick="searchBooks()">Search</button>
+                </div>
             </div>
         </div>
 
         <!-- Books Grid -->
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-            <div th:each="book : ${books}" class="col">
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="booksGrid">
+            <div th:each="book : ${books}" class="col book-item">
                 <div class="card h-100 book-card">
                     <img th:src="${book.imageUrl}" class="card-img-top book-image">
                     <div class="card-body">
@@ -59,7 +59,7 @@
         </div>
 
         <!-- Empty State -->
-        <div th:if="${#lists.isEmpty(books)}" class="text-center mt-5">
+        <div id="noResults" class="text-center mt-5" style="display: none;">
             <h3 class="text-muted">No books found</h3>
         </div>
     </div>
@@ -75,7 +75,32 @@
                     bsAlert.close();
                 }, 1500);
             }
+
+            // Add event listener for search input
+            document.getElementById('searchInput').addEventListener('input', searchBooks);
         });
+
+        function searchBooks() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const bookItems = document.getElementsByClassName('book-item');
+            const noResults = document.getElementById('noResults');
+            let hasResults = false;
+
+            for (let item of bookItems) {
+                const title = item.querySelector('.card-title').textContent.toLowerCase();
+                const author = item.querySelector('.text-muted').textContent.toLowerCase();
+                const description = item.querySelector('.card-text').textContent.toLowerCase();
+
+                if (title.includes(searchTerm) || author.includes(searchTerm) || description.includes(searchTerm)) {
+                    item.style.display = '';
+                    hasResults = true;
+                } else {
+                    item.style.display = 'none';
+                }
+            }
+
+            noResults.style.display = hasResults ? 'none' : 'block';
+        }
     </script>
 </body>
 
