@@ -1,40 +1,64 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head th:replace="fragments/header :: header">
     <title>Login</title>
-    <meta charset="UTF-8">
 </head>
+
 <body>
-<div th:replace="~{/fragments/header :: header}"></div>
+    <div th:replace="fragments/navbar :: navbar"></div>
 
-<main class="container">
-    <h1>Bookstore Login</h1>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card form-container">
+                    <div class="card-body">
+                        <h2 class="card-title text-center mb-4" th:text="#{auth.login.title}">Login</h2>
 
-    <div th:if="${param.error}" class="alert alert-danger">
-        Invalid username or password
+                        <!-- Error Message -->
+                        <div th:if="${param.error}" class="alert alert-danger" th:text="#{auth.login.error}">
+                            Invalid username or password
+                        </div>
+
+                        <!-- Success Message -->
+                        <div th:if="${param.logout}" class="alert alert-success">
+                            You have been logged out successfully.
+                        </div>
+
+                        <!-- Registration Success Message -->
+                        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+                        <!-- Login Form -->
+                        <form th:action="@{/auth/login}" method="post">
+                            <div class="mb-3">
+                                <label for="username" class="form-label" th:text="#{auth.login.username}">Username</label>
+                                <input type="text" class="form-control" id="username" name="username" required autofocus>
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label"
+                                    th:text="#{auth.login.password}">Password</label>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary" th:text="#{auth.login.submit}">
+                                    Sign In
+                                </button>
+                            </div>
+                        </form>
+
+                        <div class="text-center mt-3">
+                            <p>
+                                <span th:text="#{auth.signup.noaccount}">Don't have an account? </span>
+                                <a th:href="@{/auth/signup}" th:text="#{nav.signup}">Sign Up</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div th:if="${param.logout}" class="alert alert-success">
-        You have been logged out
-    </div>
-
-    <form th:action="@{/auth/login}" method="post">
-        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-        
-        <div class="form-group">
-            <label>Username:</label>
-            <input type="text" name="username" required class="form-control">
-        </div>
-
-        <div class="form-group">
-            <label>Password:</label>
-            <input type="password" name="password" required class="form-control">
-        </div>
-
-        <button type="submit" class="btn btn-primary">Login</button>
-    </form>
-</main>
-
-<div th:replace="~{/fragments/footer :: footer}"></div>
+    <div th:replace="fragments/footer :: footer"></div>
 </body>
+
 </html>
