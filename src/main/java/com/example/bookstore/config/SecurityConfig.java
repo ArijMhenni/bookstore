@@ -30,9 +30,10 @@ public class SecurityConfig {
 
                 http
                                 .authorizeHttpRequests(auth -> auth
-                                                .requestMatchers("/css/**", "/js/**", "/images/**","/books").permitAll()
+                                                .requestMatchers("/css/**", "/js/**", "/images/**", "/books")
+                                                .permitAll()
                                                 .requestMatchers("/auth/login", "/auth/signup").anonymous()
-                                                .requestMatchers("/h2-console/**").permitAll()
+                                                .requestMatchers("/h2-console/**").denyAll()
                                                 .requestMatchers("/changeLanguage").permitAll()
                                                 .requestMatchers("/admin/**").hasRole("ADMIN")
                                                 .anyRequest().authenticated())
