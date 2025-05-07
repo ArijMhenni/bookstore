@@ -22,13 +22,15 @@ public class OrderService {
     private final UserRepository userRepository;
     private final BookRepository bookRepository;
     private final EmailService emailService;
+    private final CartService cartService;
 
     public OrderService(OrderRepository orderRepository, UserRepository userRepository,
-                       BookRepository bookRepository, EmailService emailService) {
+            BookRepository bookRepository, EmailService emailService, CartService cartService) {
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
         this.bookRepository = bookRepository;
         this.emailService = emailService;
+        this.cartService = cartService;
     }
 
     @Transactional
@@ -68,7 +70,8 @@ public class OrderService {
             order.setItems(items);
 
             Order savedOrder = orderRepository.save(order);
-            emailService.sendOrderConfirmation(savedOrder);
+            // emailService.sendOrderConfirmation(savedOrder);
+            cartService.clearCart(username);
             return savedOrder;
         } catch (Exception e) {
             throw new OrderProcessingException("Failed to process order: " + e.getMessage(), e);
@@ -82,4 +85,4 @@ public class OrderService {
     public Optional<Order> getOrderByIdAndUsername(Long orderId, String username) {
         return orderRepository.findByIdAndUserUsername(orderId, username);
     }
-} 
+}

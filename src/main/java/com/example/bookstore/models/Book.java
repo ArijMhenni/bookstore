@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 import java.util.ArrayList;
 
-
 @Data
 @NoArgsConstructor
 @Entity
@@ -43,10 +42,7 @@ public class Book {
     private List<OrderItem> orderItems = new ArrayList<>();
 
     public String getImageUrl() {
-        if (image == null || image.isEmpty()) {
-            return "/images/default-book.jpg";
-        }
-        return "/images/" + image;
+        return "/images/Book.jpg";
     }
 
     public Long getId() {

@@ -20,8 +20,8 @@ public class CartServiceImpl implements CartService {
     private final UserRepository userRepository;
 
     public CartServiceImpl(CartItemRepository cartItemRepository,
-                          BookRepository bookRepository,
-                          UserRepository userRepository) {
+            BookRepository bookRepository,
+            UserRepository userRepository) {
         this.cartItemRepository = cartItemRepository;
         this.bookRepository = bookRepository;
         this.userRepository = userRepository;
@@ -123,5 +123,13 @@ public class CartServiceImpl implements CartService {
         } catch (Exception e) {
             throw new CartProcessingException("Failed to calculate cart total: " + e.getMessage(), e);
         }
+    }
+
+    @Override
+    @Transactional
+    public void clearCart(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new CartProcessingException("User not found"));
+        cartItemRepository.deleteAll(cartItemRepository.findByUser(user));
     }
 }
